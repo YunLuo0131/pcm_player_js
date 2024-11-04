@@ -1,11 +1,11 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined'
+  typeof exports === "object" && typeof module !== "undefined"
     ? (module.exports = factory())
-    : typeof define === 'function' && define.amd
+    : typeof define === "function" && define.amd
     ? define(factory)
     : ((global = global || self), (global.PCMPlayer = factory()));
 })(this, function () {
-  'use strict';
+  "use strict";
 
   class PCMPlayer {
     constructor(option) {
@@ -14,7 +14,7 @@
 
     init(option) {
       const defaultOption = {
-        inputCodec: 'Int16', // 传入的数据是采用多少位编码，默认16位
+        inputCodec: "Int16", // 传入的数据是采用多少位编码，默认16位
         channels: 1, // 声道数
         sampleRate: 8000, // 采样率 单位Hz
         flushTime: 1000, // 缓存时间 单位 ms
@@ -29,7 +29,7 @@
       this.initAudioContext();
       this.bindAudioContextEvent();
       this.onPlaybackEndCallback = null;
-      this.fileName = 'pcmAudio.pcm';
+      this.fileName = "pcmAudio.pcm";
       this.samplesAll = [];
     }
 
@@ -44,7 +44,7 @@
       };
       if (!inputCodecs[this.option.inputCodec])
         throw new Error(
-          'wrong codec.please input one of these codecs:Int8,Int16,Int32,Float32',
+          "wrong codec.please input one of these codecs:Int8,Int16,Int32,Float32"
         );
       return inputCodecs[this.option.inputCodec];
     }
@@ -62,7 +62,7 @@
       };
       if (!typedArrays[this.option.inputCodec])
         throw new Error(
-          'wrong codec.please input one of these codecs:Int8,Int16,Int32,Float32',
+          "wrong codec.please input one of these codecs:Int8,Int16,Int32,Float32"
         );
       return typedArrays[this.option.inputCodec];
     }
@@ -95,7 +95,7 @@
       // 数据类型是否支持
       // 目前支持 ArrayBuffer 或者 TypedArray
       if (!PCMPlayer.isTypedArray(data))
-        throw new Error('请传入ArrayBuffer或者任意TypedArray');
+        throw new Error("请传入ArrayBuffer或者任意TypedArray");
       return true;
     }
 
@@ -103,7 +103,7 @@
       this.isSupported(data);
 
       // 检查音频上下文状态，如果暂停则恢复
-      if (this.audioCtx.state === 'suspended') {
+      if (this.audioCtx.state === "suspended") {
         this.samples = new Float32Array();
         this.audioCtx.resume().then(() => {
           this.feed(data, onPlaybackEnd);
@@ -135,7 +135,7 @@
       this.isSupported(data);
 
       // 检查音频上下文状态，如果暂停则恢复
-      if (this.audioCtx.state === 'suspended') {
+      if (this.audioCtx.state === "suspended") {
         this.audioCtx.resume().then(() => {
           this.downFile(data, fileName);
         });
@@ -188,22 +188,22 @@
       // 检查是否支持Blob和URL.createObjectURL
       if (!window.Blob || !window.URL.createObjectURL) {
         throw new Error(
-          'Your browser does not support Blob or URL.createObjectURL',
+          "Your browser does not support Blob or URL.createObjectURL"
         );
       }
 
       // 创建一个新的Blob对象，使用当前samples中的数据
       const samplesData = this.mergeUint8Arrays(this.samplesAll);
       const blob = new Blob([samplesData], {
-        type: 'application/octet-stream',
+        type: "application/octet-stream",
       });
 
       // 创建一个URL表示这个Blob对象
       const url = URL.createObjectURL(blob);
 
       // 创建一个隐藏的a标签用于触发下载
-      const a = document.createElement('a');
-      a.style.display = 'none';
+      const a = document.createElement("a");
+      a.style.display = "none";
       a.href = url;
       a.download = this.fileName;
 
@@ -243,6 +243,11 @@
       if (this.interval) {
         clearInterval(this.interval);
       }
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+
       this.samples = null;
       this.audioCtx.close();
       this.audioCtx = null;
@@ -252,9 +257,14 @@
       // 添加一个检查，如果正在播放并且播放结束时调用回调
       if (this.flushing && !this.samples.length) {
         this.flushing = false;
-        if (typeof this.onPlaybackEndCallback === 'function') {
-          console.log(this.destination, '持续时间====>秒');
-          setTimeout(
+        if (typeof this.onPlaybackEndCallback === "function") {
+          console.log(this.destination, "持续时间====>秒");
+          if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+          }
+          // 定义一个变量来存储 setTimeout 的返回值
+          const timeoutId = setTimeout(
             () => {
               if (this.onPlaybackEndCallback) {
                 this.onPlaybackEndCallback();
@@ -262,9 +272,15 @@
               }
               this.fileName = [];
               this.samplesAll = [];
+
+              // 清除 timeoutId
+              clearTimeout(timeoutId);
+              this.timeoutId = null;
             },
-            this.destination ? this.destination * 1000 : 0,
+            this.destination ? this.destination * 1000 : 0
           );
+          // 存储 timeoutId 以便在其他地方可以清除
+          this.timeoutId = timeoutId;
         }
       }
 
@@ -275,7 +291,7 @@
 
       const self = this;
       var bufferSource = this.audioCtx.createBufferSource();
-      if (typeof this.option.onended === 'function') {
+      if (typeof this.option.onended === "function") {
         bufferSource.onended = function (event) {
           self.option.onended(this, event);
         };
@@ -284,7 +300,7 @@
       const audioBuffer = this.audioCtx.createBuffer(
         this.option.channels,
         length,
-        this.option.sampleRate,
+        this.option.sampleRate
       );
 
       for (let channel = 0; channel < this.option.channels; channel++) {
@@ -327,7 +343,7 @@
 
     bindAudioContextEvent() {
       const self = this;
-      if (typeof self.option.onstatechange === 'function') {
+      if (typeof self.option.onstatechange === "function") {
         this.audioCtx.onstatechange = function (event) {
           self.audioCtx &&
             self.option.onstatechange(this, event, self.audioCtx.state);
@@ -340,6 +356,11 @@
       // 取消定时器
       if (this.interval) {
         clearInterval(this.interval);
+      }
+
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
       }
 
       // 清除缓存
