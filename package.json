@@ -1,6 +1,6 @@
 {
   "name": "pcm_player_js",
-  "version": "1.0.8",
+  "version": "1.1.1",
   "description": "播放pcm音频,支持回调",
   "main": "./src/pcm_play.js",
   "types": "./src/pcm_play.d.ts",

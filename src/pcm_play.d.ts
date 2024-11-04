@@ -57,6 +57,10 @@ declare module "pcm_player_js" {
 
     private isSupported(data: ArrayBuffer | keyof typedArrays): boolean | Error;
 
+    private mergeUint8Arrays(data: ArrayBuffer | keyof typedArrays): Uint8Array;
+
+    private exportPCMFile(): void;
+
     private getFormattedValue(
       data: ArrayBuffer | keyof typedArrays
     ): Float32Array;
@@ -68,6 +72,8 @@ declare module "pcm_player_js" {
       onPlaybackEnd: () => void
     ): void;
 
+    downFile(data: ArrayBuffer | keyof typedArrays, fileName: string): void;
+
     volume(volume: number): void;
 
     destroy(): void;
@@ -75,6 +81,8 @@ declare module "pcm_player_js" {
     pause(): Promise<any>;
 
     continue(): Promise<any>;
+
+    stopAndClear(): void;
   }
 
   export = PCMPlayer;
