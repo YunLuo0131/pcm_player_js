@@ -31,6 +31,7 @@
       this.onPlaybackEndCallback = null;
       this.fileName = "pcmAudio.pcm";
       this.samplesAll = [];
+      this.volume = 0.1;
     }
 
     getConvertValue() {
@@ -73,7 +74,7 @@
       // 控制音量的 GainNode
       // https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createGain
       this.gainNode = this.audioCtx.createGain();
-      this.gainNode.gain.value = 0.1;
+      this.gainNode.gain.value = this.volume;
       this.gainNode.connect(this.audioCtx.destination);
       this.startTime = this.audioCtx.currentTime;
       this.destination = 0;
@@ -236,6 +237,7 @@
     }
 
     volume(volume) {
+      this.volume = volume;
       this.gainNode.gain.value = volume;
     }
 
