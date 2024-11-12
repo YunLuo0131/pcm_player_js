@@ -26,7 +26,7 @@
       this.interval = setInterval(this.flush.bind(this), this.option.flushTime);
       this.convertValue = this.getConvertValue();
       this.typedArray = this.getTypedArray();
-      this.volumes = 0.1;
+      this.volumes = 1;
       this.initAudioContext();
       this.bindAudioContextEvent();
       this.onPlaybackEndCallback = null;
